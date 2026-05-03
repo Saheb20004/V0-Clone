@@ -2,8 +2,9 @@
 
 import {inngest} from "@/inngest/client";
 
-export const onInvoke = async ()=>{
+export const onInvoke = async (value)=>{
     await inngest.send({
-        name:'agent/hello'
+        name:'code-agent/run',
+        data: { value }
     })
 }
