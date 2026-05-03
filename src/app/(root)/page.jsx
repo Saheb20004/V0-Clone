@@ -1,11 +1,25 @@
 import React from 'react'
 import Image from 'next/image'
 import ProjectsForm from '@/modules/home/components/project-form'
+import { Button } from '@/components/ui/button'
+// import {inngest} from '@/inngest/client'
+import { onInvoke } from '@/modules/home/actions'
 
 
 const Page = () => {
+
+  // const onInvoke=async()=>{
+  //   await inngest.send({
+  //     name:'agent/hello'
+  //   })
+  // }
+
   return (
     <div className='flex items-center justify-center w-full px-4 py-8'>
+
+      {/* <Button onClick={onInvoke} >
+        Invoke AI Agent
+      </Button> */}
        <div className='max-w-5xl w-full'>
         <section className='space-y-8 flex flex-col items-center'>
 
