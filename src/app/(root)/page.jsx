@@ -3,7 +3,8 @@ import Image from 'next/image'
 import ProjectsForm from '@/modules/home/components/project-form'
 import { Button } from '@/components/ui/button'
 // import {inngest} from '@/inngest/client'
-import { onInvoke } from '@/modules/home/actions'
+// import { onInvoke } from '@/modules/home/actions'
+import ProjectList from '@/modules/home/components/project-list'
 
 
 const Page = () => {
@@ -40,6 +41,8 @@ const Page = () => {
           <div className='max-w-3xl w-full'>
             <ProjectsForm/>
           </div>
+
+          <ProjectList/>
 
         </section>
        </div>
