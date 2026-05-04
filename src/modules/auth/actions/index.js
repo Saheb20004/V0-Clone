@@ -24,13 +24,13 @@ export const onBoardUser=async()=>{
             update:{
                 name:firstName && lastName ? `${firstName} ${lastName}`:firstName || lastName || null,
                 email:emailAddresses[0]?.emailAddress || "",
-                imageUrl:imageUrl || "",
+                image:imageUrl || "",
             },
             create:{
                 clerkId:id,
                 name:firstName && lastName ? `${firstName} ${lastName}`:firstName || lastName || null,
                 email:emailAddresses[0]?.emailAddress || "",
-                imageUrl:imageUrl || "",
+                image:imageUrl || "",
             }
         })
 

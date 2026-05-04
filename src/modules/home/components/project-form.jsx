@@ -7,15 +7,14 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useState } from "react";
 import z from "zod";
-// import { Spinner } from "@/components/ui/spinner"
+import { Spinner } from "@/components/ui/spinner"
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Form, FormField } from "@/components/ui/form";
-import { onInvoke } from "../actions";
-// import { useCreateProject } from "@/modules/projects/hooks/project";
-
 // import { onInvoke } from "../actions";
+import { useCreateProject } from "@/modules/projects/hooks/project";
+
 
 const formSchema = z.object({
   content: z
@@ -78,14 +77,14 @@ const PROJECT_TEMPLATES = [
 const ProjectsForm = () => {
   const [isFocused, setIsFocused] = useState(false);
   const router = useRouter();
-//   const {mutateAsync , isPending} = useCreateProject()
+  const {mutateAsync , isPending} = useCreateProject()
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       content: "",
     },
-    // mode:"onChange"
+    mode:"onChange"
   });
 
   const handleTemplate = (prompt) => {
@@ -94,43 +93,43 @@ const ProjectsForm = () => {
 
   const onSubmit = async (values) => {
     try {
-    //   const res = await mutateAsync(values.content)
-    //   router.push(`/projects/${res.id}`)
-    //   toast.success("Project created successfully")
-    //   form.reset()
+      const res = await mutateAsync(values.content)
+      router.push(`/projects/${res.id}`)
+      toast.success("Project created successfully")
+      form.reset()
     console.log(values)
     } catch (error) {
-    //    toast.error(error.message || "Failed to create project");
+       toast.error(error.message || "Failed to create project");
     }
   };
 
-  const onInvokeAI=async()=>{
-    try{
-      const res=await onInvoke()
-      console.log(res)
-      toast.success("Done")
-    }catch(error){
-      console.log(error)
-      toast.error("Failed to invoke agent")
-    }
-  }
+  // const onInvokeAI=async()=>{
+  //   try{
+  //     const res=await onInvoke()
+  //     console.log(res)
+  //     toast.success("Done")
+  //   }catch(error){
+  //     console.log(error)
+  //     toast.error("Failed to invoke agent")
+  //   }
+  // }
 
 
-//   const isButtonDisabled = isPending || !form.watch("content").trim()
+  const isButtonDisabled = isPending || !form.watch("content").trim()
 
   return (
     <div className="space-y-8">
       {/* Template Grid */}
-      <Button onClick={onInvokeAI} >
+      {/* <Button onClick={onInvokeAI} >
         Invoke AI Agent
-      </Button>
+      </Button> */}
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {PROJECT_TEMPLATES.map((template, index) => (
           <button
             key={index}
             onClick={() => handleTemplate(template.prompt)}
-            // disabled={isPending}
+            disabled={isPending}
             className="group relative p-4 rounded-xl border bg-card hover:bg-accent/50 transition-all duration-200 text-left disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md hover:border-primary/30"
           >
             <div className="flex flex-col gap-2">
@@ -200,15 +199,14 @@ const ProjectsForm = () => {
             </div>
             <Button
             className={cn("size-8 rounded-full"  
-            //  , isButtonDisabled && "bg-muted-foreground border"
+             , isButtonDisabled && "bg-muted-foreground border"
             )}
-            // disabled={isButtonDisabled}
+            disabled={isButtonDisabled}
             type="submit"
             >
-              {/* {
+              {
                 isPending ? (<Spinner/>) : (<ArrowUpIcon className="size-4"/>)
-              } */}
-                <ArrowUpIcon className="size-4"/>
+              }
                 
             </Button>
          </div>
