@@ -5,6 +5,9 @@ import { createTool, createNetwork } from "@inngest/agent-kit";
 import { PROMPT } from "@/prompt";
 import { z } from "zod";
 import { lastAssistantMessageContent } from "./utils";
+import db from "@/lib/db";
+import { MessageRole, MessageType } from "@prisma/client";
+// import { generateResponse, generateFragmentTitle } from "@/lib/response";
 
 export const codeAgentFunction = inngest.createFunction(
   { id: "code-agent", triggers: [{ event: "code-agent/run" }], retries: 3 },
@@ -21,9 +24,9 @@ export const codeAgentFunction = inngest.createFunction(
       description: "An expert coding agent",
       system: PROMPT,
       model: openai({
-          model: "llama-3.3-70b",
-          apiKey: process.env.CEREBRAS_API_KEY,
-          baseUrl: "https://api.cerebras.ai/v1",
+        model: "llama3.1-8b",
+        apiKey: process.env.CEREBRAS_API_KEY,
+        baseUrl: "https://api.cerebras.ai/v1",
     }),
 
       tools:[
@@ -164,6 +167,38 @@ export const codeAgentFunction = inngest.createFunction(
       const sandbox=await Sandbox.connect(sandboxId)
       const host=sandbox.getHost(3000)
       return `http://${host}`
+    })
+
+    await step.run("save-result" , async()=>{
+      if(isError){
+        return await db.message.create({
+          data:{
+            projectId:event.data.projectId,
+            content:"Something went wrong. Please try again",
+            role:MessageRole.ASSISTANT,
+            type:MessageType.ERROR
+          }
+        })
+      }
+
+
+      return await db.message.create({
+        data:{
+          projectId:event.data.projectId,
+          // content:generateResponse(),
+          content:result.state.data.summary,
+          role:MessageRole.ASSISTANT,
+          type:MessageType.RESULT,
+          fragments:{
+            create:{
+              sandboxUrl:sandboxUrl,
+              // title:generateFragmentTitle(),
+              title:'Untitled',
+              files:result.state.data.files
+            }
+          }
+        }
+      })
     })
 
     return {
