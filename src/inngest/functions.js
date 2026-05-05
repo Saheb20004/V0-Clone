@@ -2,7 +2,7 @@ import { inngest } from "./client";
 import { openai, createAgent } from "@inngest/agent-kit";
 import Sandbox from "@e2b/code-interpreter";
 import { createTool, createNetwork } from "@inngest/agent-kit";
-import { PROMPT } from "@/prompt";
+import { PROMPT , FRAGMENT_TITLE_PROMPT , RESPONSE_PROMPT} from "@/prompt";
 import { z } from "zod";
 import { lastAssistantMessageContent } from "./utils";
 import db from "@/lib/db";
@@ -161,6 +161,59 @@ export const codeAgentFunction = inngest.createFunction(
 
     // const { output } = await codeAgent.run("Say hello to the user!");
     const result= await network.run(event.data.value || "")
+
+    const fragmentTitleGenerator=createAgent({
+      name:"fragment-title-generator",
+      description:"Generate a title for the fragment",
+      system:FRAGMENT_TITLE_PROMPT,
+      model:openai({
+        model:"llama3.1-8b",
+        apiKey: process.env.CEREBRAS_API_KEY,
+        baseUrl: "https://api.cerebras.ai/v1",
+      })
+    })
+
+    const responseGenerator=createAgent({
+      name:"response-generator",
+      description:"Generate a response for the fragment",
+      system:RESPONSE_PROMPT,
+      model:openai({
+        model:"llama3.1-8b",
+        apiKey: process.env.CEREBRAS_API_KEY,
+        baseUrl: "https://api.cerebras.ai/v1",
+      })
+    })
+
+
+    const { output:fragmentTitleOutput }=await fragmentTitleGenerator.run(result.state.data.summary)
+    const { output:responseOutput }=await responseGenerator.run(result.state.data.summary)
+
+
+    const generateFragmentTitle = ()=>{
+      if(fragmentTitleOutput[0].type !=="text"){
+        return "Untitled"
+      }
+
+      if(Array.isArray(fragmentTitleOutput[0].content)){
+            return fragmentTitleOutput[0].content.map((c) => c).join("");
+      }
+      else{
+        return fragmentTitleOutput[0].content
+      }
+    }
+
+    const generateResponse = ()=>{
+       if (responseOutput[0].type !== "text") {
+        return "Here you go";
+      }
+
+      if (Array.isArray(responseOutput[0].content)) {
+        return responseOutput[0].content.map((c) => c).join("");
+      } else {
+        return responseOutput[0].content;
+      }
+    }
+
     const isError = !result.state.data.summary || Object.keys(result.state.data.files || {}).length === 0;
 
     const sandboxUrl=await step.run("get-sandbox-url",async()=>{
@@ -185,15 +238,14 @@ export const codeAgentFunction = inngest.createFunction(
       return await db.message.create({
         data:{
           projectId:event.data.projectId,
-          // content:generateResponse(),
-          content:result.state.data.summary,
+          content:generateResponse(),
+          // content:result.state.data.summary,
           role:MessageRole.ASSISTANT,
           type:MessageType.RESULT,
           fragments:{
             create:{
               sandboxUrl:sandboxUrl,
-              // title:generateFragmentTitle(),
-              title:'Untitled',
+              title:generateFragmentTitle(),
               files:result.state.data.files
             }
           }
