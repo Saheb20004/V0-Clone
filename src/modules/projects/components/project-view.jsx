@@ -11,14 +11,14 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
 import ProjectHeader from "./project-header";
-// import MessageContainer from "./message-container";
+import MessageContainer from "./message-container";
 import { Code, CrownIcon, EyeIcon } from "lucide-react";
 // import FragmentWeb from "./fragment-web";
 // import { FileExplorer } from "./file-explorer";
 
 
 const ProjectView = ({ projectId }) => {
-  // const [activeFragment, setActiveFragment] = useState(null);
+  const [activeFragment, setActiveFragment] = useState(null);
   // const [tabState, setTabState] = useState("preview");
 
   return (
@@ -29,14 +29,14 @@ const ProjectView = ({ projectId }) => {
           minSize={20}
           className="flex flex-col min-h-0"
         >
-          {/* <ProjectHeader projectId={projectId} /> */}
+          <ProjectHeader projectId={projectId} />
 
  {/* Todo message container */}
-          {/* <MessageContainer
+          <MessageContainer
             projectId={projectId}
             activeFragment={activeFragment}
             setActiveFragment={setActiveFragment}
-          /> */}
+          />
         </ResizablePanel>
 
         <ResizableHandle withHandle />
